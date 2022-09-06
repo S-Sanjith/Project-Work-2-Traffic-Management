@@ -29,12 +29,12 @@ const searchHandler=()=>{
     axios({
       method: "GET",
       //Shows all offences when search entry is blank
-      url: ((searchid === '')? 'offences/all' : `offences/search/${searchid}`),
+      url: ((searchid === '')? 'http://localhost:5000/offences/all' : `http://localhost:5000/offences/search/${searchid}`),
     })
     .then((response) => {
       const res = response.data
       if(!res) alert('not found!')
-      setData(res)
+      setData(res.data)
     })
 }
 

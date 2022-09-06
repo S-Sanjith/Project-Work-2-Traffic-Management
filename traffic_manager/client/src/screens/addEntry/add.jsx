@@ -19,7 +19,7 @@ function AddScr() {
      setReportNo(Random())
   },[])
   
-  const date = d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate()
+  const date = d.toISOString().slice(0, 19).replace('T', ' ');
 const time=new Date().toLocaleTimeString()
   
   
@@ -31,12 +31,14 @@ const time=new Date().toLocaleTimeString()
 
     const data = { 
       repno: reportNo,
+      regno: regno,
       dlno: dlno,
       type: Type,
       date:date,
-      time: time,
+      time: (date),
+      impound: impound,
       location: location,
-      paid: (ispaid === true)? 1 : 0,
+      paid: (ispaid === true)? "Yes" : "No",
     };
     
     await fetch('http://localhost:5000/offences/new/', {
@@ -48,6 +50,8 @@ const time=new Date().toLocaleTimeString()
     })
       .then(res => res.json())
       .then(res => console.log(res));
+      setRegno('')
+      setImpound('')
       setDlno('')
       setName('')
       setLocation('')
@@ -64,6 +68,35 @@ const time=new Date().toLocaleTimeString()
         }
       }
   }
+
+  const getOff = (type) => {
+    //sends a request to fetch data of a driver
+    console.log(type)
+    setType(type)
+    axios({
+      method: "GET",
+      url: `http://localhost:5000/offences/getOffence/${type}`,
+    })
+    .then((response) => {
+      const res = response.data
+      setFine(res)
+    })
+  }
+
+  const getDname = (dl) => {
+    //sends a request to fetch data of a driver
+    console.log(dl)
+    setDlno(dl)
+    axios({
+      method: "GET",
+      url: `http://localhost:5000/offences/getDname/${dl}`,
+    })
+    .then((response) => {
+      const res = response.data
+      setName(res)
+    })
+  }
+
   return (
     <div className='add'>
       <form className='form' onSubmit={submitHandler}>
@@ -72,9 +105,9 @@ const time=new Date().toLocaleTimeString()
         <span className='report--time'> Time: {time}</span><br></br>
         <label for="Dl-no">DL Number: </label>
         <input type="text" autoComplete='off' name='Dl-no' className="dl-no" value={dlno} onChange={(e)=>
-        setDlno(e.target.value)} required />
+        getDname(e.target.value)} required />
          <label for="regno">Registration number: </label>
-        <input type="text" autoComplete='off' className="Dl-no" name='regno' value={name} onChange={(e)=>
+        <input type="text" autoComplete='off' className="Dl-no" name='regno' value={regno} onChange={(e)=>
         setRegno(e.target.value)} required/>
         <label for="name">Name: </label>
         <input type="text" autoComplete='off' className="Dl-no" name='name' value={name} onChange={(e)=>
@@ -87,7 +120,7 @@ const time=new Date().toLocaleTimeString()
         <div>
         <label for="type">Offence Type:</label>
         
-        <select name="type" required id="type" onChange={(e)=>setType(e.target.value)}>
+        <select name="type" required id="type" onChange={(e)=>getOff(e.target.value)}>
         <option value="select">select </option>
         <option value="no helmet">no helmet</option>
         <option value="no DL">no DL</option>
