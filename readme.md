@@ -1,6 +1,6 @@
 [FOR DEVS ]  
-Reconfigured backend to run with flask  
-install flask,flask-marshmallow, flask_mysqldb, flask_cors, datetime, pyjwt==2.0.0 using pip3 if needed  
+Recondigured backend to run with flask  
+install flask,flask-marshmallow, flask_mysqldb, flask_cors using pip3 if needed  
 app configured to run on port 5000  
 basic database connection code added (to be updated once actual db is made)  
 run cmd:   
