@@ -16,7 +16,7 @@ function Navbar() {
   const [tab,setTab]= useState(window.location.pathname)
   const dispatch= useDispatch()
   const handlelogout=()=>{
-    if (window.confirm('are you sure you want to logout?')==true)
+    if (window.confirm('are you sure you want to logout?')===true)
     dispatch(logoutUser())
     
   }
