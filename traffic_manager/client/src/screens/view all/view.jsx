@@ -3,8 +3,9 @@ import React, { useState, useEffect } from 'react'
 import axios from 'axios'
 import '../../global.css'
 
-import { IconButton, Link, List, TextField } from '@mui/material'
+import {  IconButton,  List, TextField } from '@mui/material'
 import SearchIcon from '@mui/icons-material/Search';
+
 function ViewAll() {
   const [searchid,setSearchid]= useState([])
   const [offData, setData] = useState([])
@@ -94,7 +95,7 @@ const removeRow = (repno) => {
             <tr>
               <td>{item[0]}</td>
               <td>{item[1]}</td>
-              <td><Link to={`/vehicles/${item[2]}`}>{item[2]}</Link>  </td> 
+              <td>{item[2]}</td>
               <td>{item[3]}</td>
               <td>{item[4]}</td>
               <td>{item[5]}</td>

@@ -49,7 +49,9 @@ const time=new Date().toLocaleTimeString()
       body: JSON.stringify(data),
     })
       .then(res => res.json())
-      .then(res => console.log(res));
+      .then(res => console.log(res))
+      .then(alert('submitted'))
+      
       setRegno('')
       setImpound('')
       setDlno('')
@@ -58,15 +60,12 @@ const time=new Date().toLocaleTimeString()
       setFine('')
       setispaid(null)
       setType('')
+      setImpound('')
+      setTowed('-')
       console.log('submit');
 
-      //submit if impound is true
-      if(impound==='true'){
-        const imdata={
-         regno: regno,
-          impound:impound
-        }
-      }
+      
+      
   }
 
   const getOff = (type) => {
