@@ -1,21 +1,22 @@
 
 import React, { useState, useEffect } from 'react'
 import axios from 'axios'
-import './view.css'
+import '../../global.css'
 
-import { IconButton, List, TextField } from '@mui/material'
+import {  IconButton,  List, TextField } from '@mui/material'
 import SearchIcon from '@mui/icons-material/Search';
+
 function ViewAll() {
   const [searchid,setSearchid]= useState([])
   const [offData, setData] = useState([])
   useEffect(()=>{
     axios({
       method: "GET",
-      url:"/offences/all",
+      url:"http://localhost:5000/offences/all",
     })
     .then((response) => {
       const res =response.data
-      setData(res)
+      setData(res.data)
     })
   }, [])
 
@@ -29,12 +30,12 @@ const searchHandler=()=>{
     axios({
       method: "GET",
       //Shows all offences when search entry is blank
-      url: ((searchid === '')? 'offences/all' : `offences/search/${searchid}`),
+      url: ((searchid === '')? 'http://localhost:5000/offences/all' : `http://localhost:5000/offences/search/${searchid}`),
     })
     .then((response) => {
       const res = response.data
       if(!res) alert('not found!')
-      setData(res)
+      setData(res.data)
     })
 }
 
@@ -42,18 +43,18 @@ const removeRow = (repno) => {
   //sends a request to fetch data of a driver
   console.log(repno)
   axios({
-    method: "GET",
-    url: `offences/del/${repno}`,
+    method: "POST",
+    url: `http://localhost:5000/offences/del/${repno}`,
   })
   .then((response) => {
     console.log(response)
     axios({
       method: "GET",
-      url: 'offences/all',
+      url: 'http://localhost:5000/offences/all',
     })
     .then((response) => {
       const res = response.data
-      setData(res)
+      setData(res.data)
     })
   })
 }
@@ -78,7 +79,10 @@ const removeRow = (repno) => {
   </div><div className='cnt'>
         <table border="1" className='offence--tables'>
           <tr className='heading'>
-            <td>Dl number</td>
+          <td>Report Number</td>
+          <td>Dl number</td>
+          <td>Registration Number</td>
+           
             <td>Name</td>
             <td>Offence Type</td>
             <td>Time</td>
@@ -95,8 +99,10 @@ const removeRow = (repno) => {
               <td>{item[3]}</td>
               <td>{item[4]}</td>
               <td>{item[5]}</td>
+              <td>{item[6]}</td>
+              <td>{item[7]}</td>
               {/* <td>{item[5]} {<Link to={`/edit/${item[1]}`} className='edit--link'> edit</Link>}</td> */}
-              <td>{item[6]} <button onClick={() => {removeRow(item[7])}}>delete</button></td>
+              <td>{item[8]} <button onClick={() => {removeRow(item[0])}}>delete</button></td>
             </tr>
           ))}
 
