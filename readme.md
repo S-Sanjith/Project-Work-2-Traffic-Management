@@ -3,7 +3,7 @@ traffic offences tracking system made with react.js, python flask,redux and mySQ
 other contributors:  
 Sai Ganesh (https://github.com/dude-curious)  
 Swaroop (https://github.com/swaroopb2001)  
-Sanjith (https://github.com/S-Sanjith)  
+Sai Pranav (https://github.com/saip429)  
 project snapshots:  
 login screen page  
 ![image](https://user-images.githubusercontent.com/87996749/208025286-bc9b117a-5846-47ff-a08c-2f5e38a0c441.png)  
