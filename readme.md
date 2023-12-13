@@ -1,7 +1,7 @@
 academic project for BMS college of engineering  
 traffic offences tracking system made with react.js, python flask,redux and mySQL  
 other contributors:  
-Sai Ganesh (https://github.com/dude-curious)  
+Sai Ganesh (https://github.com/sai-ganesh-03)  
 Swaroop (https://github.com/swaroopb2001)  
 Sai Pranav (https://github.com/saip429)  
 project snapshots:  
