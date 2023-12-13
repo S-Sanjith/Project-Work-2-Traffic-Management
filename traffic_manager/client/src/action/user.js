@@ -82,3 +82,35 @@ export const logoutUser=()=> async(dispatch)=>{
     })
    }
 }
+
+export const signUpUser= (username,password)=> async(dispatch)=>{
+    try {
+        dispatch({
+            type:'signupRequest'
+        })
+
+        const response= await Axios.post('/signup',{
+           username: username,
+           password: password
+        },{
+            Headers:{
+                'Content-Type':'application/json',
+                
+            },
+            
+        })
+        localStorage.setItem('token', response.data.token)
+
+        dispatch({
+            type:'signupSuccess',
+            payload:response.data.user
+        })
+        
+    } catch (error) {
+        dispatch({
+            type:'signupFailure',
+            payload: error.message
+        })
+    }
+
+}

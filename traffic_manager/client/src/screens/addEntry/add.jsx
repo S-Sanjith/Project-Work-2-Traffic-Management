@@ -38,7 +38,7 @@ const time=new Date().toLocaleTimeString()
       time: (date),
       impound: impound,
       location: location,
-      paid: (ispaid === true)? "Yes" : "No",
+      paid: (ispaid === 'true')? "Yes" : "No",
     };
     
     await fetch('http://localhost:5000/offences/new/', {

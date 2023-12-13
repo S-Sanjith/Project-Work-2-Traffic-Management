@@ -1,8 +1,8 @@
-#app imports
 from datetime import datetime
 import json
 import jwt
 import datetime
+from passlib.hash import sha256_crypt
 
 from flask import Flask, request, jsonify
 from flask_mysqldb import MySQL 
@@ -16,9 +16,9 @@ CORS(app, support_credentials=True)
 app.config['SECRET_KEY']='JWTAuthKey'
 
 #DB config 
-app.config['MYSQL_HOST'] = 'database-2.c8hjebd9wtea.ap-south-1.rds.amazonaws.com'
-app.config['MYSQL_USER'] = 'admin'
-app.config['MYSQL_PASSWORD'] = 'Admin123'
+app.config['MYSQL_HOST'] = 'localhost'
+app.config['MYSQL_USER'] = 'flaskuser'
+app.config['MYSQL_PASSWORD'] = 'flaskuser'
 app.config['MYSQL_DB'] = 'TrafficDb' 
 mysql = MySQL(app)
 
@@ -27,22 +27,46 @@ mysql = MySQL(app)
 def index():
     return jsonify('hello world')
 
-@app.route('/login',methods=['POST'])
+# @app.route('/login',methods=['POST'])
+# @cross_origin(supports_credentials=True)
+# def login():
+#     data=request.get_json()
+    
+#     username=data.get('username')
+#     password=data.get('password')
+    
+#     if not username or not password:
+#         return jsonify({'message':'invalid credentials'}),403
+#     if password=='admin123' and username=='admin':
+#         token=jwt.encode({'user':'admin','exp':datetime.datetime.utcnow()+datetime.timedelta(days=30)}, app.config['SECRET_KEY'], algorithm="HS256")
+#         return jsonify({'user':'admin','token': token}),200
+#     else:
+#         return jsonify({'message':'invalid credentials'}),403
+    
+@app.route('/login', methods=['POST'])
 @cross_origin(supports_credentials=True)
 def login():
-    data=request.get_json()
-    
-    username=data.get('username')
-    password=data.get('password')
-    
+    data = request.get_json()
+    username = data.get('username')
+    password = data.get('password')
+    # hashed_password = sha256_crypt.hash(password)
+
     if not username or not password:
-        return jsonify({'message':'invalid credentials'}),403
-    if password=='admin123' and username=='admin':
-        token=jwt.encode({'user':'admin','exp':datetime.datetime.utcnow()+datetime.timedelta(days=30)}, app.config['SECRET_KEY'], algorithm="HS256")
-        return jsonify({'user':'admin','token': token}),200
+        return jsonify({'message': 'Invalid credentials'}), 403
+
+    cursor = mysql.connection.cursor()
+    cursor.execute("SELECT username, password FROM users WHERE username = %s", (username,))
+    user_data = cursor.fetchone()
+
+    # if user_data and user_data[1] == password:
+    if user_data and sha256_crypt.verify(password, user_data[1]):
+        # Generate JWT token
+        token = jwt.encode({'user': username, 'exp': datetime.datetime.utcnow() + datetime.timedelta(days=30)},
+                          app.config['SECRET_KEY'], algorithm="HS256")
+        return jsonify({'user': username, 'token': token}), 200
     else:
-        return jsonify({'message':'invalid credentials'}),403
-    
+        return jsonify({'message': 'Invalid credentials'}), 403
+
     
 @app.route('/isloggedin', methods=['POST'])
 def isauth():
@@ -55,12 +79,31 @@ def isauth():
     else:
         return jsonify({'success':False}),403
     
+@app.route('/signup', methods=['POST'])
+def signup():
+    data = request.get_json()
+    username = data.get('username')
+    password = data.get('password')
+
+    if not username or not password:
+        return jsonify({'message': 'Invalid credentials'}), 400
+
+    hashed_password = sha256_crypt.hash(password)
+
+    cursor = mysql.connection.cursor()
+    cursor.execute("INSERT INTO users (username, password) VALUES (%s, %s)", (username, hashed_password))
+    # cursor.execute("INSERT INTO users (username, password) VALUES (%s, %s)", (username, password))
+    mysql.connection.commit()
+
+    return jsonify({'message': 'Signup successful'}), 201
+
 @app.route('/offences/all')
 def all():
     try:
         cursor = mysql.connection.cursor()
-        #cursor.execute(''' SELECT c.repno, c.dlno, c.regno, d.d_name, c.o_type, c.o_date, c.location, o.fine, c.ispaid FROM driver d, commits c, offences o where d.dlno=c.dlno and o.o_type=c.o_type ''') #Query
-        cursor.execute('''select * from all_details ''')
+        cursor.execute(''' SELECT c.repno, c.dlno, c.regno, d.d_name, c.o_type, c.o_date, c.location, o.fine, c.ispaid FROM driver d, commits c, offences o where d.dlno=c.dlno and o.o_type=c.o_type ''') #Query
+        # cursor.execute('''select * from all_details ''')
+        # cursor.execute('''select * from commits ''')
         data=cursor.fetchall()
         return jsonify({'data':data}),200
     except:

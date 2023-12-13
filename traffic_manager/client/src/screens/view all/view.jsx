@@ -1,98 +1,99 @@
-
-import React, { useState, useEffect } from 'react'
-import axios from 'axios'
-import '../../global.css'
-
-import {  IconButton,  List, TextField } from '@mui/material'
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+import { IconButton, List, TextField, Dialog, DialogTitle, DialogContent, DialogActions, Button } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
+import '../../global.css';
 
 function ViewAll() {
-  const [searchid,setSearchid]= useState([])
-  const [offData, setData] = useState([])
-  useEffect(()=>{
-    axios({
-      method: "GET",
-      url:"http://localhost:5000/offences/all",
-    })
-    .then((response) => {
-      const res =response.data
-      setData(res.data)
-    })
-  }, [])
+  const [searchid, setSearchid] = useState('');
+  const [offData, setData] = useState([]);
+  const [selectedRow, setSelectedRow] = useState(null);
+  const [openDialog, setOpenDialog] = useState(false);
 
-/* 
-  For the requests to work, create table 'commits' in mySQL with exactly these columns:
-  repno (varchar), dlno(varchar), offenceid(varchar), time(date), location(varchar), paid(boolean)
-*/
-
-const searchHandler=()=>{
-  //sends a request to fetch data of a driver
+  useEffect(() => {
     axios({
-      method: "GET",
-      //Shows all offences when search entry is blank
-      url: ((searchid === '')? 'http://localhost:5000/offences/all' : `http://localhost:5000/offences/search/${searchid}`),
-    })
-    .then((response) => {
-      const res = response.data
-      if(!res) alert('not found!')
-      setData(res.data)
-    })
-}
-
-const removeRow = (repno) => {
-  //sends a request to fetch data of a driver
-  console.log(repno)
-  axios({
-    method: "POST",
-    url: `http://localhost:5000/offences/del/${repno}`,
-  })
-  .then((response) => {
-    console.log(response)
-    axios({
-      method: "GET",
+      method: 'GET',
       url: 'http://localhost:5000/offences/all',
-    })
-    .then((response) => {
-      const res = response.data
-      setData(res.data)
-    })
-  })
-}
+    }).then((response) => {
+      const res = response.data;
+      setData(res.data);
+    });
+  }, []);
+
+  const searchHandler = () => {
+    axios({
+      method: 'GET',
+      url: searchid === '' ? 'http://localhost:5000/offences/all' : `http://localhost:5000/offences/search/${searchid}`,
+    }).then((response) => {
+      const res = response.data;
+      if (!res) alert('not found!');
+      setData(res.data);
+    });
+  };
+
+  const removeRow = (repno) => {
+    setSelectedRow(repno);
+    setOpenDialog(true);
+  };
+
+  const handleDelete = () => {
+    axios({
+      method: 'POST',
+      url: `http://localhost:5000/offences/del/${selectedRow}`,
+    }).then((response) => {
+      console.log(response);
+      axios({
+        method: 'GET',
+        url: 'http://localhost:5000/offences/all',
+      }).then((response) => {
+        const res = response.data;
+        setData(res.data);
+      });
+    });
+
+    setOpenDialog(false);
+  };
+
+  const handleCloseDialog = () => {
+    setSelectedRow(null);
+    setOpenDialog(false);
+  };
 
   return (
-    <> <div className="searchbar">
-   
-    <div className="search">
-      <TextField
-        id="outlined-basic"
-        variant="outlined"
-        fullWidth
-        label="Search"
-        value={searchid}
-        onChange={(e)=> setSearchid(e.target.value)}
-      />
-    <IconButton onClick={searchHandler}>
-      <SearchIcon  />
-    </IconButton>
-    </div>
-    <List />
-  </div><div className='cnt'>
-        <table border="1" className='offence--tables'>
-          <tr className='heading'>
-          <td>Report Number</td>
-          <td>Dl number</td>
-          <td>Registration Number</td>
-           
+    <>
+      <div className="searchbar">
+        <div className="search">
+          <TextField
+            id="outlined-basic"
+            variant="outlined"
+            fullWidth
+            label="Search"
+            value={searchid}
+            onChange={(e) => setSearchid(e.target.value)}
+          />
+          <IconButton onClick={searchHandler}>
+            <SearchIcon />
+          </IconButton>
+        </div>
+        <List />
+      </div>
+      <div className="cnt">
+        <table border="1" className="offence--tables">
+          <tr className="heading">
+            <td>Report Number</td>
+            <td>Dl number</td>
+            <td>Registration Number</td>
             <td>Name</td>
             <td>Offence Type</td>
             <td>Time</td>
             <td>Location</td>
             <td>Fine</td>
             <td>Paid</td>
+            <td>Delete</td>
           </tr>
 
           {offData.map((item) => (
-            <tr>
+            <tr key={item[0]}>
               <td>{item[0]}</td>
               <td>{item[1]}</td>
               <td>{item[2]}</td>
@@ -101,15 +102,24 @@ const removeRow = (repno) => {
               <td>{item[5]}</td>
               <td>{item[6]}</td>
               <td>{item[7]}</td>
-              {/* <td>{item[5]} {<Link to={`/edit/${item[1]}`} className='edit--link'> edit</Link>}</td> */}
-              <td>{item[8]} <button onClick={() => {removeRow(item[0])}}>delete</button></td>
+              <td>{item[8]}</td>
+              <td><button onClick={() => removeRow(item[0])}>delete</button></td>
             </tr>
           ))}
-
         </table>
-      </div></>
-  )
+      </div>
+      <Dialog open={openDialog} onClose={handleCloseDialog}>
+        <DialogTitle>Confirm Deletion</DialogTitle>
+        <DialogContent>
+          Are you sure you want to delete this row?
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCloseDialog}>Cancel</Button>
+          <Button onClick={handleDelete}>Delete</Button>
+        </DialogActions>
+      </Dialog>
+    </>
+  );
+}
 
-        }
-
-export default ViewAll
+export default ViewAll;
